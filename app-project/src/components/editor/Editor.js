@@ -1,6 +1,7 @@
 import "../../helpers/iframeLoader.js";
 import axios from "axios";
 import React, { Component } from "react";
+import DOMHelper from "../../helpers/dom-helper.js";
 /* import { useState, useEffect } from "react"; */
 export default class Editor extends Component {
   constructor() {
@@ -26,13 +27,13 @@ export default class Editor extends Component {
     this.currentPage = page; //записываем ту страницу которую открываем
     axios
       .get(`../${page}?rnd=${Math.random()}`) //посыл запрса на сервер и получ страницы
-      .then((res) => this.parseStringToDom(res.data)) //модифицируем ее из строки в dom
-      .then(this.wrapTextNodes) //оборачиваем кеатомными тегами текстовые ноды
+      .then((res) => DOMHelper.parseStringToDom(res.data)) //модифицируем ее из строки в dom
+      .then(DOMHelper.wrapTextNodes) //оборачиваем кеатомными тегами текстовые ноды
       .then((dom) => {
         this.virtualDom = dom;
         return dom;
       }) //пенрезаписываем ее в virtulDom
-      .then(this.serializeDomToString) //переводим dom в строку
+      .then(DOMHelper.serializeDomToString) //переводим dom в строку
       .then((html) => axios.post("./api/saveTempPage.php", { html: html })) //отправляем ее на сервер
       .then(() => this.iframe.load("../temp.html")) //открываем ее в iframe
       .then(() => {
@@ -41,8 +42,8 @@ export default class Editor extends Component {
   }
   save() {
     const newDom = this.virtualDom.cloneNode(this.virtualDom);
-    this.unWrapTextNodes(newDom);
-    const html = this.serializeDomToString(newDom);
+    DOMHelper.unWrapTextNodes(newDom);
+    const html = DOMHelper.serializeDomToString(newDom);
     axios.post("./api/savePage.php", {
       pageName: this.currentPage,
       html: html,
@@ -63,44 +64,7 @@ export default class Editor extends Component {
     this.virtualDom.body.querySelector(`[nodeid="${id}"]`).innerHTML =
       element.innerHTML;
   }
-  parseStringToDom(str) {
-    const parser = new DOMParser();
-    return parser.parseFromString(str, "text/html");
-  }
-  wrapTextNodes(dom) {
-    const body = dom.body;
-    let textNodes = [];
-    function recursy(element) {
-      element.childNodes.forEach((node) => {
-        if (
-          node.nodeName === "#text" &&
-          node.nodeValue.replace(/\s+/g, "").length > 0
-        ) {
-          textNodes.push(node);
-        } else {
-          recursy(node);
-        }
-      });
-      return dom;
-    }
-    recursy(body);
-    textNodes.forEach((node, i) => {
-      const wraper = dom.createElement("text-editor");
-      node.parentNode.replaceChild(wraper, node);
-      wraper.appendChild(node);
-      wraper.setAttribute("nodeid", i);
-    });
-    return dom;
-  }
-  serializeDomToString(dom) {
-    const seriaizer = new XMLSerializer();
-    return seriaizer.serializeToString(dom);
-  }
-  unWrapTextNodes(dom) {
-    dom.body.querySelectorAll("text-editor").forEach((element) => {
-      element.parentNode.replaceChild(element.firstChild, element);
-    });
-  }
+
   loadPageList() {
     axios.get("./api/").then((res) => this.setState({ pageList: res.data }));
   }
