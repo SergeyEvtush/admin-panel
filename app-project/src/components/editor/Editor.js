@@ -2,6 +2,7 @@ import "../../helpers/iframeLoader.js";
 import axios from "axios";
 import React, { Component } from "react";
 import DOMHelper from "../../helpers/dom-helper.js";
+import EditorText from "../editor-text/editor-text.js";
 /* import { useState, useEffect } from "react"; */
 export default class Editor extends Component {
   constructor() {
@@ -54,14 +55,14 @@ export default class Editor extends Component {
     d.contentWindow.document.body
       .querySelectorAll("text-editor")
       .forEach((el) => {
-        el.contentEditable = "true";
-        el.addEventListener("input", () => {
-          this.onTextEdit(el);
-        });
+        const id = el.getAttribute("nodeid");
+        const virtualElement = this.virtualDom.body.querySelector(
+          `[nodeid="${id}"]`
+        );
+        new EditorText(el, virtualElement);
       });
   }
   injectStyles() {
-    console.log("fff");
     const style = this.iframe.contentWindow.document.createElement("style");
     style.innerHTML = `
 	  text-editor:hover{
@@ -73,11 +74,6 @@ export default class Editor extends Component {
 	  outline-offset:8px;
 	  }`;
     this.iframe.contentWindow.document.head.appendChild(style);
-  }
-  onTextEdit(element) {
-    const id = element.getAttribute("nodeid");
-    this.virtualDom.body.querySelector(`[nodeid="${id}"]`).innerHTML =
-      element.innerHTML;
   }
 
   loadPageList() {
