@@ -39,7 +39,7 @@ export default class Editor extends Component {
       .then(() => {
         this.enableEditing(this.iframe); //включаем редактирование и слушаем изменения
       })
-      .then(() => injectStyles()); //придание стилей рамке вокруг редактируемого элемента
+      .then(() => this.injectStyles()); //придание стилей рамке вокруг редактируемого элемента
   }
   save() {
     const newDom = this.virtualDom.cloneNode(this.virtualDom);
@@ -61,6 +61,7 @@ export default class Editor extends Component {
       });
   }
   injectStyles() {
+    console.log("fff");
     const style = this.iframe.contentWindow.document.createElement("style");
     style.innerHTML = `
 	  text-editor:hover{
@@ -68,7 +69,7 @@ export default class Editor extends Component {
 	  outline-offset:8px;
 	  }
 	  text-editor:focus{
-	  outline:3px solid orange;
+	  outline:3px solid red;
 	  outline-offset:8px;
 	  }`;
     this.iframe.contentWindow.document.head.appendChild(style);
