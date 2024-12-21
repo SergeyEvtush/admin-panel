@@ -43,7 +43,7 @@ export default class Editor extends Component {
       })
       .then(() => this.injectStyles()); //придание стилей рамке вокруг редактируемого элемента
   }
-  save(cb) {
+  save(onSuccess, onError) {
     const newDom = this.virtualDom.cloneNode(this.virtualDom);
     DOMHelper.unWrapTextNodes(newDom);
     const html = DOMHelper.serializeDomToString(newDom);
@@ -52,7 +52,8 @@ export default class Editor extends Component {
         pageName: this.currentPage,
         html: html,
       })
-      .then(cb);
+      .then(onSuccess)
+      .catch(onError);
   }
   enableEditing(d) {
     d.contentWindow.document.body
@@ -129,12 +130,20 @@ export default class Editor extends Component {
                 className="uk-button uk-button-primary uk-modal-close"
                 type="button"
                 onClick={() =>
-                  this.save(() => {
-                    UIkit.notification({
-                      message: "Успешно сохранено",
-                      status: "success",
-                    });
-                  })
+                  this.save(
+                    () => {
+                      UIkit.notification({
+                        message: "Успешно сохранено",
+                        status: "success",
+                      });
+                    },
+                    () => {
+                      UIkit.notification({
+                        message: "Ошибка сохранения",
+                        status: "danger",
+                      });
+                    }
+                  )
                 }
               >
                 Опубликовать
