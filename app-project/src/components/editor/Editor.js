@@ -3,6 +3,7 @@ import axios from "axios";
 import React, { Component } from "react";
 import DOMHelper from "../../helpers/dom-helper.js";
 import EditorText from "../editor-text/editor-text.js";
+import UIkit from "uikit";
 /* import { useState, useEffect } from "react"; */
 export default class Editor extends Component {
   constructor() {
@@ -42,14 +43,16 @@ export default class Editor extends Component {
       })
       .then(() => this.injectStyles()); //придание стилей рамке вокруг редактируемого элемента
   }
-  save() {
+  save(cb) {
     const newDom = this.virtualDom.cloneNode(this.virtualDom);
     DOMHelper.unWrapTextNodes(newDom);
     const html = DOMHelper.serializeDomToString(newDom);
-    axios.post("./api/savePage.php", {
-      pageName: this.currentPage,
-      html: html,
-    });
+    axios
+      .post("./api/savePage.php", {
+        pageName: this.currentPage,
+        html: html,
+      })
+      .then(cb);
   }
   enableEditing(d) {
     d.contentWindow.document.body
@@ -96,27 +99,57 @@ export default class Editor extends Component {
       });
   }
   render() {
-    /* const { pageList } = this.state;
-    const pages = pageList.map((page, i) => {
-      return (
-        <h1 key={i}>
-          {page}
-          <a href="#" onClick={() => this.deletePage(page)}>
-            (x)
-          </a>
-        </h1>
-      );
-    });  */
+    const modal = true;
     return (
       <>
-        <button onClick={() => this.save()} className="but">
-          click
-        </button>
         <iframe src={this.currentPage} frameBorder="0"></iframe>
+
+        <div className="panel">
+          <button
+            className="uk-button uk-button-primary"
+            type="button"
+            uk-toggle="target: #modal-save"
+          >
+            Опубликовать
+          </button>
+        </div>
+
+        <div id="modal-save" uk-modal={modal.toString()} container="false">
+          <div className="uk-modal-dialog uk-modal-body">
+            <h2 className="uk-modal-title">Сохранение</h2>
+            <p>Уверены что хотите сохранить изменения</p>
+            <p className="uk-text-right">
+              <button
+                className="uk-button uk-button-default uk-modal-close"
+                type="button"
+              >
+                Отменить
+              </button>
+              <button
+                className="uk-button uk-button-primary uk-modal-close"
+                type="button"
+                onClick={() =>
+                  this.save(() => {
+                    UIkit.notification({
+                      message: "Успешно сохранено",
+                      status: "success",
+                    });
+                  })
+                }
+              >
+                Опубликовать
+              </button>
+            </p>
+          </div>
+        </div>
       </>
     );
   }
 }
+
+/* <button onClick={() => this.save()} className="but">
+          click
+        </button> */
 
 //!тот же функционал только на хуках
 /* const Editor = () => {
