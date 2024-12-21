@@ -10,8 +10,17 @@ export default class EditorText {
     });
     this.element.addEventListener("keypress", (e) => this.onKeyPress(e));
     this.element.addEventListener("input", () => this.onTextEdit());
+    if (
+      this.element.parentNode.nodeName === "A" ||
+      this.element.parentNode.nodeName === "BUTTON"
+    ) {
+      this.element.addEventListener("contextmenu", (e) => this.onCtxmenu(e));
+    }
   }
-
+  onCtxmenu(e) {
+    e.preventDefault();
+    this.onClick();
+  }
   onClick() {
     this.element.contentEditable = "true";
     this.element.focus();
