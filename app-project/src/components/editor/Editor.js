@@ -3,6 +3,7 @@ import axios from "axios";
 import React, { Component } from "react";
 import DOMHelper from "../../helpers/dom-helper.js";
 import EditorText from "../editor-text/editor-text.js";
+import Spiner from "../spiner";
 import UIkit from "uikit";
 /* import { useState, useEffect } from "react"; */
 export default class Editor extends Component {
@@ -12,8 +13,11 @@ export default class Editor extends Component {
     this.state = {
       pageList: [],
       newPageName: "",
+      loading: true,
     };
     this.createNewPage = this.createNewPage.bind(this);
+    this.isLoading = this.isLoading.bind(this);
+    this.isLoaded = this.isLoaded.bind(this);
   }
   componentDidMount() {
     this.init(this.currentPage);
@@ -21,11 +25,11 @@ export default class Editor extends Component {
 
   init(page) {
     this.iframe = document.querySelector("iframe");
-    this.open(page);
+    this.open(page, this.isLoaded);
     this.loadPageList();
   }
 
-  open(page) {
+  open(page, cb) {
     this.currentPage = page; //записываем ту страницу которую открываем
     axios
       .get(`../${page}?rnd=${Math.random()}`) //посыл запрса на сервер и получ страницы
@@ -41,9 +45,11 @@ export default class Editor extends Component {
       .then(() => {
         this.enableEditing(this.iframe); //включаем редактирование и слушаем изменения
       })
-      .then(() => this.injectStyles()); //придание стилей рамке вокруг редактируемого элемента
+      .then(() => this.injectStyles()) //придание стилей рамке вокруг редактируемого элемента
+      .then(cb);
   }
   save(onSuccess, onError) {
+    this.isLoading();
     const newDom = this.virtualDom.cloneNode(this.virtualDom);
     DOMHelper.unWrapTextNodes(newDom);
     const html = DOMHelper.serializeDomToString(newDom);
@@ -53,7 +59,8 @@ export default class Editor extends Component {
         html: html,
       })
       .then(onSuccess)
-      .catch(onError);
+      .catch(onError)
+      .finally(this.isLoaded);
   }
   enableEditing(d) {
     d.contentWindow.document.body
@@ -99,12 +106,27 @@ export default class Editor extends Component {
         alert("Страница не существует");
       });
   }
+
+  isLoading() {
+    this.setState({
+      loading: true,
+    });
+  }
+  isLoaded() {
+    this.setState({
+      loading: false,
+    });
+  }
+
   render() {
+    const { loading } = this.state;
+
     const modal = true;
+
     return (
       <>
         <iframe src={this.currentPage} frameBorder="0"></iframe>
-
+        <Spiner active={loading}></Spiner>
         <div className="panel">
           <button
             className="uk-button uk-button-primary"
