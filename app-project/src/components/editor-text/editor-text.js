@@ -25,6 +25,10 @@ export default class EditorText {
     this.element.contentEditable = "true";
     this.element.focus();
   }
+  makeArray(element) {
+    this.priceArray.push(element);
+    return this.priceArray;
+  }
   onBlur() {
     this.element.removeAttribute("contenteditable");
   }
