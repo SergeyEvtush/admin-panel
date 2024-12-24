@@ -196,7 +196,15 @@ export default class Editor extends Component {
           data={backupsList}
           redirect={this.restoreBackup}
         />
-        <EditorMeta modal={modal} target={"modal-meta"} />
+        {this.virtualDom ? (
+          <EditorMeta
+            modal={modal}
+            target={"modal-meta"}
+            virtualDom={this.virtualDom}
+          />
+        ) : (
+          false
+        )}
       </>
     );
   }
