@@ -9,6 +9,7 @@ import ConfirmModal from "../confirm-modal";
 import ChooseModal from "../choose-modal";
 import Panel from "../panel";
 import EditorMeta from "../editor-meta";
+import EditorImages from "../editor-images";
 /* import { useState, useEffect } from "react"; */
 export default class Editor extends Component {
   constructor() {
@@ -49,6 +50,7 @@ export default class Editor extends Component {
       .get(`../${page}?rnd=${Math.random()}`) //посыл запрса на сервер и получ страницы
       .then((res) => DOMHelper.parseStringToDom(res.data)) //модифицируем ее из строки в dom
       .then(DOMHelper.wrapTextNodes) //оборачиваем кеатомными тегами текстовые ноды
+      .then(DOMHelper.wrapImages) //оборачиваем кеатомными тегами картинки
       .then((dom) => {
         this.virtualDom = dom;
         return dom;
@@ -71,6 +73,7 @@ export default class Editor extends Component {
     this.isLoading();
     const newDom = this.virtualDom.cloneNode(this.virtualDom);
     DOMHelper.unWrapTextNodes(newDom);
+    DOMHelper.unwrapImages(newDom);
     const html = DOMHelper.serializeDomToString(newDom);
     await axios
       .post("./api/savePage.php", {
@@ -93,6 +96,17 @@ export default class Editor extends Component {
 
         new EditorText(el, virtualElement);
       });
+
+    d.contentWindow.document.body
+      .querySelectorAll("[editableimgid]")
+      .forEach((el) => {
+        const id = el.getAttribute("editableimgid");
+        const virtualElement = this.virtualDom.body.querySelector(
+          `[editableimgid="${id}"]`
+        );
+
+        new EditorImages(el, virtualElement);
+      });
   }
   injectStyles() {
     const style = this.iframe.contentWindow.document.createElement("style");
@@ -103,6 +117,10 @@ export default class Editor extends Component {
 	  }
 	  text-editor:focus{
 	  outline:3px solid red;
+	  outline-offset:8px;
+	  }
+	  [editableimgid]:hover{
+	  outline:3px solid green;
 	  outline-offset:8px;
 	  }`;
     this.iframe.contentWindow.document.head.appendChild(style);
@@ -181,6 +199,12 @@ export default class Editor extends Component {
     return (
       <>
         <iframe src={null} frameBorder="0"></iframe>
+        <input
+          id="img-upload"
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+        ></input>
         <Spiner active={loading}></Spiner>
         <Panel />
         <ConfirmModal modal={modal} target={"modal-save"} method={this.save} />
