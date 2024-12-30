@@ -69,7 +69,8 @@ export default class Editor extends Component {
       .then(cb);
     this.loadBackapsList();
   }
-  async save(onSuccess, onError) {
+
+  async save() {
     this.isLoading();
     const newDom = this.virtualDom.cloneNode(this.virtualDom);
     DOMHelper.unWrapTextNodes(newDom);
@@ -80,8 +81,8 @@ export default class Editor extends Component {
         pageName: this.currentPage,
         html: html,
       })
-      .then(onSuccess)
-      .catch(onError)
+      .then(() => this.showNotifications("Успешно сохранено", "success"))
+      .catch(() => this.showNotifications("Ошибка сохранения", "danger"))
       .finally(this.isLoaded);
     this.loadBackapsList();
   }
@@ -105,7 +106,13 @@ export default class Editor extends Component {
           `[editableimgid="${id}"]`
         );
 
-        new EditorImages(el, virtualElement);
+        new EditorImages(
+          el,
+          virtualElement,
+          this.isLoading,
+          this.isLoaded,
+          this.showNotifications
+        );
       });
   }
   injectStyles() {
@@ -171,6 +178,9 @@ export default class Editor extends Component {
     this.setState({
       loading: false,
     });
+  }
+  showNotifications(message, status) {
+    UIkit.notification({ message, status });
   }
   //метод создания массива отредактированных элементов(по data -атрибуту) для отправки в бд
   //элементы добавляются в массив по пропаже фокуса на них
