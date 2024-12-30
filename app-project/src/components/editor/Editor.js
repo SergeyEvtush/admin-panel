@@ -10,6 +10,7 @@ import ChooseModal from "../choose-modal";
 import Panel from "../panel";
 import EditorMeta from "../editor-meta";
 import EditorImages from "../editor-images";
+import Login from "../login";
 /* import { useState, useEffect } from "react"; */
 export default class Editor extends Component {
   constructor() {
