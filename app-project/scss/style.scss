@@ -1,17 +1,9 @@
-@use "../../node_modules/uikit/src/scss/variables-theme.scss";
-@use "../../node_modules/uikit/src/scss/mixins-theme.scss";
-@use "../../node_modules/uikit/src/scss/uikit-theme.scss";
+@import "../../node_modules/bootstrap/scss/bootstrap";
 
 $panel_height: 64px;
 
 * {
   box-sizing: border-box;
-}
-
-.panel {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
 }
 
 iframe {

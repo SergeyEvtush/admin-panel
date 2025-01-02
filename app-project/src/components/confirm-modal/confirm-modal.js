@@ -1,26 +1,41 @@
 import React from "react";
-
-const ConfirmModal = ({ modal, target, method }) => {
+const ConfirmModal = ({ target, method }) => {
   return (
-    <div id={target} uk-modal={modal.toString()} container="false">
-      <div className="uk-modal-dialog uk-modal-body">
-        <h2 className="uk-modal-title">Сохранение</h2>
-        <p>Уверены что хотите сохранить изменения</p>
-        <p className="uk-text-right">
-          <button
-            className="uk-button uk-button-default uk-modal-close uk-margin-small-right"
-            type="button"
-          >
-            Отменить
-          </button>
-          <button
-            className="uk-button uk-button-primary uk-modal-close"
-            type="button"
-            onClick={() => method()}
-          >
-            Опубликовать
-          </button>
-        </p>
+    <div id={target} className="modal fade ">
+      <div className="modal-dialog modal-dialog-centered">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h2 className="modal-title">Сохранение</h2>
+            <button
+              type="button"
+              className="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Закрыть"
+            ></button>
+          </div>
+          <div className="modal-body">
+            <p>Уверены что хотите сохранить изменения</p>
+          </div>
+
+          <div className="modal-footer">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Отменить
+            </button>
+            <button
+              data-bs-dismiss="modal"
+              type="button"
+              className="btn btn-primary me-1"
+              variant="primary"
+              onClick={() => method()}
+            >
+              Опубликовать
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

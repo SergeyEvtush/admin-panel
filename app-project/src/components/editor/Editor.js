@@ -4,12 +4,16 @@ import React, { Component } from "react";
 import DOMHelper from "../../helpers/dom-helper.js";
 import EditorText from "../editor-text/editor-text.js";
 import Spiner from "../spiner";
-import UIkit from "uikit";
+/* import UIkit from "uikit"; */
+import bootstrap from "bootstrap";
 import ConfirmModal from "../confirm-modal";
 import ChooseModal from "../choose-modal";
 import Panel from "../panel";
 import EditorMeta from "../editor-meta";
 import EditorImages from "../editor-images";
+import Notification from "../notification";
+import Alert from "bootstrap";
+import Toast from "react-bootstrap/Toast";
 import Login from "../login";
 /* import { useState, useEffect } from "react"; */
 export default class Editor extends Component {
@@ -17,6 +21,11 @@ export default class Editor extends Component {
     super();
     this.currentPage = "index.html";
     this.state = {
+      notification: {
+        message: "",
+        type: "",
+        show: "false",
+      },
       bdListProducts: [],
       menuListProducts: [],
       pageList: [],
@@ -82,8 +91,12 @@ export default class Editor extends Component {
         pageName: this.currentPage,
         html: html,
       })
-      .then(() => this.showNotifications("Успешно сохранено", "success"))
-      .catch(() => this.showNotifications("Ошибка сохранения", "danger"))
+      .then(() => {
+        confirm("success");
+      })
+      .catch(() => {
+        alert();
+      })
       .finally(this.isLoaded);
     this.loadBackapsList();
   }
@@ -111,8 +124,8 @@ export default class Editor extends Component {
           el,
           virtualElement,
           this.isLoading,
-          this.isLoaded,
-          this.showNotifications
+          this.isLoaded
+          /* this.showNotifications("Успешно сохранено", "success", "true") */
         );
       });
   }
@@ -148,26 +161,30 @@ export default class Editor extends Component {
       })
     );
   }
+  confirmModal() {
+    return confirm(
+      "Вы действительно хотите восстановить страницу из этой резервной копии? Все несохраненные изменения будут утеряны!",
+      { Labels: { ok: "Восстановить", cansel: "Отменить восстановление" } }
+    );
+  }
   restoreBackup(e, backup) {
     if (e) {
       e.preventDefault();
     }
-    UIkit.modal
-      .confirm(
-        "Вы действительно хотите восстановить страницу из этой резервной копии? Все несохраненные изменения будут утеряны!",
-        { Labels: { ok: "Восстановить", cansel: "Отменить восстановление" } }
-      )
-      .then(() => {
-        this.isLoading();
-        return axios
-          .post("./api/restoreBackup.php", {
-            page: this.currentPage,
-            file: backup,
-          })
-          .then(() => {
-            this.open(this.currentPage, this.isLoaded);
-          });
-      });
+    new Promise(() => this.confirmModal()).then(() => {
+      this.isLoading();
+      return axios
+        .post("./api/restoreBackup.php", {
+          page: this.currentPage,
+          file: backup,
+        })
+        .then(() => {
+          this.open(this.currentPage, this.isLoaded);
+        });
+    });
+  }
+  showNotifications() {
+    return <Notification></Notification>;
   }
 
   isLoading() {
@@ -180,9 +197,9 @@ export default class Editor extends Component {
       loading: false,
     });
   }
-  showNotifications(message, status) {
+  /*  showNotifications(message, status) {
     UIkit.notification({ message, status });
-  }
+  } */
   //метод создания массива отредактированных элементов(по data -атрибуту) для отправки в бд
   //элементы добавляются в массив по пропаже фокуса на них
   makeBdList(attribute) {
@@ -206,7 +223,7 @@ export default class Editor extends Component {
  */
   render() {
     const { loading, pageList, backupsList } = this.state;
-    const modal = true;
+
     return (
       <>
         <iframe src={null} frameBorder="0"></iframe>
@@ -216,27 +233,25 @@ export default class Editor extends Component {
           accept="image/*"
           style={{ display: "none" }}
         ></input>
+
         <Spiner active={loading}></Spiner>
         <Panel />
-        <ConfirmModal modal={modal} target={"modal-save"} method={this.save} />
+
+        <ConfirmModal target={"modal-save"} method={this.save} />
         <ChooseModal
-          modal={modal}
           target={"modal-open"}
           data={pageList}
           redirect={this.init}
+          bstoggle={"modal"}
         />
         <ChooseModal
-          modal={modal}
+          bstoggle={"modal"}
           target={"modal-backup"}
           data={backupsList}
           redirect={this.restoreBackup}
         />
         {this.virtualDom ? (
-          <EditorMeta
-            modal={modal}
-            target={"modal-meta"}
-            virtualDom={this.virtualDom}
-          />
+          <EditorMeta target={"modal-meta"} virtualDom={this.virtualDom} />
         ) : (
           false
         )}

@@ -1,6 +1,6 @@
 import React from "react";
 
-const ChooseModal = ({ modal, target, data, redirect }) => {
+const ChooseModal = ({ target, data, redirect, bstoggle }) => {
   const pageList = data.map((item) => {
     if (item.time) {
       return (
@@ -33,19 +33,33 @@ const ChooseModal = ({ modal, target, data, redirect }) => {
     msg = "Резервных копий не найдено";
   }
   return (
-    <div id={target} uk-modal={modal.toString()} container="false">
-      <div className="uk-modal-dialog uk-modal-body">
-        <h2 className="uk-modal-title">Открыть</h2>
-        {msg}
-        <ul className="uk-list uk-list-divider">{pageList}</ul>
-        <p className="uk-text-right">
-          <button
-            className="uk-button uk-button-default uk-modal-close uk-margin-small-right"
-            type="button"
-          >
-            Отменить
-          </button>
-        </p>
+    <div
+      id={target}
+      /* uk-modal={modal.toString()} container="false" */ className={
+        `${bstoggle}` + " modal fade"
+      }
+    >
+      <div className="modal-dialog modal-dialog-centered">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h2 className="modal-title fs-5">Открыть</h2>
+            <button
+              type="button"
+              className="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Закрыть"
+            ></button>
+          </div>
+          <div className="modal-body">
+            {msg}
+            <ul className="uk-list uk-list-divider">{pageList}</ul>
+          </div>
+          <div className="modal-footer">
+            <button className="btn btn-primary" type="button">
+              Отменить
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

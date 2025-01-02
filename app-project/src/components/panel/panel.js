@@ -1,35 +1,44 @@
 import React from "react";
+import Button from "react-bootstrap/Button";
 const Panel = () => {
   return (
-    <div className="panel">
-      <button
-        className="uk-button uk-button-primary uk-margin-small-right"
+    <div className="d-flex justify-content-end align-items-center p-3 panel">
+      <Button
+        className="me-1"
+        variant="primary"
         type="button"
-        uk-toggle="target: #modal-open"
+        data-bs-target="#modal-open"
+        data-bs-toggle="modal"
       >
         Открыть
-      </button>
-      <button
-        className="uk-button uk-button-primary uk-margin-small-right"
+      </Button>
+      <Button
+        className="me-1"
+        variant="primary"
         type="button"
-        uk-toggle="target: #modal-save"
+        data-bs-target="#modal-save"
+        data-bs-toggle="modal"
       >
         Опубликовать
-      </button>
-      <button
-        className="uk-button uk-button-primary uk-margin-small-right"
+      </Button>
+      <Button
+        className="me-1"
+        variant="primary"
         type="button"
-        uk-toggle="target: #modal-meta"
+        data-bs-target="#modal-meta"
+        data-bs-toggle="modal"
       >
         Редактировать Мета
-      </button>
-      <button
-        className="uk-button uk-button-default"
+      </Button>
+      <Button
+        className="me-1"
+        variant="primary"
         type="button"
-        uk-toggle="target: #modal-backup"
+        data-bs-target="#modal-backup"
+        data-bs-toggle="modal"
       >
         Восстановить
-      </button>
+      </Button>
     </div>
   );
 };
