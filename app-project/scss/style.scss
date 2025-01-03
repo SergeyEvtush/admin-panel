@@ -54,8 +54,23 @@ iframe {
 }
 .login {
   width: 600px;
-  height: 300px;
+
   padding: 30px;
   background: #fff;
   border-radius: 4px;
+}
+
+.login-error {
+  display: block;
+  color: red;
+  margin-top: 10px;
+}
+
+.notification {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
+  visibility: hidden;
 }

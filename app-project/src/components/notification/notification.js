@@ -1,13 +1,21 @@
 import React from "react";
 
-const Notification = ({ notification }) => {
+const Notification = ({ type, message, active }) => {
+  console.log(type, message);
+
   return (
     <div
-      className={`alert alert-${notification.type} alert-dismissible notification`}
+      className={
+        `alert alert-${type} alert-dismissible notification fade show ${active}`
+          ? "active"
+          : ""
+      }
       role="alert"
-      show={notification.show}
     >
-      <div>{notification.message}</div>
+      <div>
+        {message}
+        {console.log(message)}
+      </div>
       <button
         type="button"
         className="btn-close"

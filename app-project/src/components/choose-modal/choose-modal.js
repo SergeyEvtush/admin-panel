@@ -7,8 +7,10 @@ const ChooseModal = ({ target, data, redirect, bstoggle }) => {
         <li key={item.file}>
           <a
             onClick={(e) => redirect(e, item.file)}
-            className="uk-link-muted uk-modal-close"
+            className="modal-close"
             href="#"
+            data-bs-dismiss="modal"
+            data-bs-target={`#` + target}
           >
             Резервная копия от{item.time}
           </a>
@@ -19,7 +21,9 @@ const ChooseModal = ({ target, data, redirect, bstoggle }) => {
         <li key={item}>
           <a
             onClick={(e) => redirect(e, item)}
-            className="uk-link-muted uk-modal-close"
+            data-bs-dismiss="modal"
+            data-bs-target={`#` + target}
+            className="modal-close"
             href="#"
           >
             {item}
@@ -47,6 +51,7 @@ const ChooseModal = ({ target, data, redirect, bstoggle }) => {
               type="button"
               className="btn-close"
               data-bs-dismiss="modal"
+              data-bs-target={`#` + target}
               aria-label="Закрыть"
             ></button>
           </div>
@@ -55,7 +60,12 @@ const ChooseModal = ({ target, data, redirect, bstoggle }) => {
             <ul className="uk-list uk-list-divider">{pageList}</ul>
           </div>
           <div className="modal-footer">
-            <button className="btn btn-primary" type="button">
+            <button
+              className="btn btn-primary"
+              type="btn-close"
+              data-bs-dismiss="modal"
+              data-bs-target={`#` + target}
+            >
               Отменить
             </button>
           </div>

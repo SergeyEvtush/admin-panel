@@ -12,46 +12,81 @@ import Panel from "../panel";
 import EditorMeta from "../editor-meta";
 import EditorImages from "../editor-images";
 import Notification from "../notification";
-import Alert from "bootstrap";
-import Toast from "react-bootstrap/Toast";
 import Login from "../login";
+
 /* import { useState, useEffect } from "react"; */
 export default class Editor extends Component {
   constructor() {
     super();
     this.currentPage = "index.html";
     this.state = {
-      notification: {
-        message: "",
-        type: "",
-        show: "false",
-      },
+      notification: false,
       bdListProducts: [],
       menuListProducts: [],
       pageList: [],
       backupsList: [],
       newPageName: "",
       loading: true,
+      auth: false,
+      loginError: false,
+      loginLengthError: false,
     };
     this.isLoading = this.isLoading.bind(this);
     this.isLoaded = this.isLoaded.bind(this);
     this.save = this.save.bind(this);
     this.init = this.init.bind(this);
+    this.login = this.login.bind(this);
+    this.logout = this.logout.bind(this);
     this.restoreBackup = this.restoreBackup.bind(this);
   }
   componentDidMount() {
-    this.init(null, this.currentPage);
+    this.checkAuth();
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.auth !== prevState.auth) {
+      this.init(null, this.currentPage);
+    }
+  }
+  checkAuth() {
+    axios.get("./api/checkAuth.php").then((res) => {
+      this.setState({
+        auth: res.data.auth,
+      });
+    });
+  }
+  login(pass) {
+    if (pass.length > 5) {
+      axios.post("./api/login.php", { password: pass }).then((res) => {
+        this.setState({
+          auth: res.data.auth,
+          loginError: !res.data.auth,
+          loginLengthError: false,
+        });
+      });
+    } else {
+      this.setState({
+        loginError: false,
+        loginLengthError: true,
+      });
+    }
+  }
+  logout() {
+    axios.get("./api/logout.php").then(() => {
+      window.location.replace("/");
+    });
   }
 
   init(e, page) {
     if (e) {
       e.preventDefault();
     }
-    this.isLoading(); //спинер
-    this.iframe = document.querySelector("iframe");
-    this.open(page, this.isLoaded);
-    this.loadPageList();
-    this.loadBackapsList();
+    if (this.state.auth) {
+      this.isLoading(); //спинер
+      this.iframe = document.querySelector("iframe");
+      this.open(page, this.isLoaded);
+      this.loadPageList();
+      this.loadBackapsList();
+    }
   }
 
   open(page, cb) {
@@ -91,9 +126,7 @@ export default class Editor extends Component {
         pageName: this.currentPage,
         html: html,
       })
-      .then(() => {
-        confirm("success");
-      })
+      .then()
       .catch(() => {
         alert();
       })
@@ -171,7 +204,8 @@ export default class Editor extends Component {
     if (e) {
       e.preventDefault();
     }
-    new Promise(() => this.confirmModal()).then(() => {
+    this.confirmModal();
+    new Promise(() => {
       this.isLoading();
       return axios
         .post("./api/restoreBackup.php", {
@@ -182,9 +216,6 @@ export default class Editor extends Component {
           this.open(this.currentPage, this.isLoaded);
         });
     });
-  }
-  showNotifications() {
-    return <Notification></Notification>;
   }
 
   isLoading() {
@@ -197,6 +228,7 @@ export default class Editor extends Component {
       loading: false,
     });
   }
+  showNotifications() {}
   /*  showNotifications(message, status) {
     UIkit.notification({ message, status });
   } */
@@ -222,11 +254,27 @@ export default class Editor extends Component {
 создать метод проверяющий элемент на наличие нужного дата атрибута и наличия разрешения редактирования ,если оно было то пихаем этот элемент в массив и отправляем в бд
  */
   render() {
-    const { loading, pageList, backupsList } = this.state;
-
+    const {
+      loading,
+      pageList,
+      backupsList,
+      auth,
+      loginError,
+      loginLengthError,
+    } = this.state;
+    if (!auth) {
+      return (
+        <Login
+          login={this.login}
+          lengthErr={loginLengthError}
+          logErr={loginError}
+        />
+      );
+    }
     return (
       <>
         <iframe src={null} frameBorder="0"></iframe>
+
         <input
           id="img-upload"
           type="file"
@@ -236,8 +284,24 @@ export default class Editor extends Component {
 
         <Spiner active={loading}></Spiner>
         <Panel />
-
-        <ConfirmModal target={"modal-save"} method={this.save} />
+        <ConfirmModal
+          target={"modal-save"}
+          method={this.save}
+          text={{
+            title: "Сохранение",
+            description: "Уверены что хотите сохранить изменения",
+            btn: "Опубликовать",
+          }}
+        />
+        <ConfirmModal
+          target={"modal-logout"}
+          method={this.logout}
+          text={{
+            title: "Выход",
+            description: "Уверены что хотите выйти",
+            btn: "Выход",
+          }}
+        />
         <ChooseModal
           target={"modal-open"}
           data={pageList}

@@ -55,6 +55,7 @@ gulp.task("build-sass", () => {
     .pipe(gulp.dest(dist));
 });
 gulp.task("copy-api", () => {
+  gulp.src("./app-project/api/**/.*").pipe(gulp.dest(dist + "/api"));
   return gulp.src("./app-project/api/**/*.*").pipe(gulp.dest(dist + "/api"));
 });
 gulp.task("copy-assets", () => {

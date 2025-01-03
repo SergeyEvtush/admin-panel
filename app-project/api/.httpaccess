@@ -1,0 +1,3 @@
+<Files settings.json>
+  <RequireAll> Require all granted Require not ip 78.36.117.153 </RequireAll>
+</Files>

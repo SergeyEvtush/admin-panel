@@ -1,5 +1,9 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+session_start();
+if($_SESSION["auth"]!=true){
+	header("HTTP/1.0 403 Forbiden");
+	die;
+}
 $htmlfiles=glob("../../*.html");
 $response=[];
 

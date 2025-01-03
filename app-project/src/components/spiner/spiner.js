@@ -1,9 +1,12 @@
 import React from "react";
+import { Spinner } from "react-bootstrap";
 
 const Spiner = ({ active }) => {
   return (
     <div className={active ? "spiner active" : "spiner"}>
-      <div uk-spinner={active.toString()}></div>
+      <Spinner animation="border" role="status">
+        <span className="sr-only">Loading...</span>
+      </Spinner>
     </div>
   );
 };

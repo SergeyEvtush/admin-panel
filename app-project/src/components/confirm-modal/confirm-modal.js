@@ -1,11 +1,12 @@
 import React from "react";
-const ConfirmModal = ({ target, method }) => {
+const ConfirmModal = ({ target, method, text }) => {
+  const { title, description, btn } = text;
   return (
     <div id={target} className="modal fade ">
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content">
           <div className="modal-header">
-            <h2 className="modal-title">Сохранение</h2>
+            <h2 className="modal-title">{title}</h2>
             <button
               type="button"
               className="btn-close"
@@ -14,7 +15,7 @@ const ConfirmModal = ({ target, method }) => {
             ></button>
           </div>
           <div className="modal-body">
-            <p>Уверены что хотите сохранить изменения</p>
+            <p>{description}</p>
           </div>
 
           <div className="modal-footer">
@@ -32,7 +33,7 @@ const ConfirmModal = ({ target, method }) => {
               variant="primary"
               onClick={() => method()}
             >
-              Опубликовать
+              {btn}
             </button>
           </div>
         </div>
