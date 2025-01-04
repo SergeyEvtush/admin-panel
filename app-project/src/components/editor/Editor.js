@@ -4,7 +4,6 @@ import React, { Component } from "react";
 import DOMHelper from "../../helpers/dom-helper.js";
 import EditorText from "../editor-text/editor-text.js";
 import Spiner from "../spiner";
-/* import UIkit from "uikit"; */
 import bootstrap from "bootstrap";
 import ConfirmModal from "../confirm-modal";
 import ChooseModal from "../choose-modal";
@@ -13,32 +12,27 @@ import EditorMeta from "../editor-meta";
 import EditorImages from "../editor-images";
 import Notification from "../notification";
 import Login from "../login";
+import { setTimeout } from "core-js";
 
-/* import { useState, useEffect } from "react"; */
 export default class Editor extends Component {
-  constructor() {
-    super();
-    this.currentPage = "index.html";
-    this.state = {
-      notification: false,
-      bdListProducts: [],
-      menuListProducts: [],
-      pageList: [],
-      backupsList: [],
-      newPageName: "",
-      loading: true,
-      auth: false,
-      loginError: false,
-      loginLengthError: false,
-    };
-    this.isLoading = this.isLoading.bind(this);
-    this.isLoaded = this.isLoaded.bind(this);
-    this.save = this.save.bind(this);
-    this.init = this.init.bind(this);
-    this.login = this.login.bind(this);
-    this.logout = this.logout.bind(this);
-    this.restoreBackup = this.restoreBackup.bind(this);
-  }
+  currentPage = "index.html";
+  state = {
+    notification: {
+      show: false,
+      variant: "danger",
+      text: "test",
+    },
+    bdListProducts: [],
+    menuListProducts: [],
+    pageList: [],
+    backupsList: [],
+    newPageName: "",
+    loading: true,
+    auth: false,
+    loginError: false,
+    loginLengthError: false,
+  };
+
   componentDidMount() {
     this.checkAuth();
   }
@@ -47,14 +41,14 @@ export default class Editor extends Component {
       this.init(null, this.currentPage);
     }
   }
-  checkAuth() {
+  checkAuth = () => {
     axios.get("./api/checkAuth.php").then((res) => {
       this.setState({
         auth: res.data.auth,
       });
     });
-  }
-  login(pass) {
+  };
+  login = (pass) => {
     if (pass.length > 5) {
       axios.post("./api/login.php", { password: pass }).then((res) => {
         this.setState({
@@ -69,14 +63,14 @@ export default class Editor extends Component {
         loginLengthError: true,
       });
     }
-  }
-  logout() {
+  };
+  logout = () => {
     axios.get("./api/logout.php").then(() => {
       window.location.replace("/");
     });
-  }
+  };
 
-  init(e, page) {
+  init = (e, page) => {
     if (e) {
       e.preventDefault();
     }
@@ -87,9 +81,9 @@ export default class Editor extends Component {
       this.loadPageList();
       this.loadBackapsList();
     }
-  }
+  };
 
-  open(page, cb) {
+  open = (page, cb) => {
     this.currentPage = page; //записываем ту страницу которую открываем
     axios
       .get(`../${page}?rnd=${Math.random()}`) //посыл запрса на сервер и получ страницы
@@ -108,14 +102,11 @@ export default class Editor extends Component {
         this.enableEditing(this.iframe); //включаем редактирование и слушаем изменения
       })
       .then(() => this.injectStyles()) //придание стилей рамке вокруг редактируемого элемента
-      .then(() => {
-        this.makeBdList("data-price"); //создаем массив нужных элементов для отправки в бд
-      })
       .then(cb);
     this.loadBackapsList();
-  }
+  };
 
-  async save() {
+  save = async () => {
     this.isLoading();
     const newDom = this.virtualDom.cloneNode(this.virtualDom);
     DOMHelper.unWrapTextNodes(newDom);
@@ -126,14 +117,14 @@ export default class Editor extends Component {
         pageName: this.currentPage,
         html: html,
       })
-      .then()
-      .catch(() => {
-        alert();
+      .then(this.showNotifications("sucess", "Изменения сохранены"))
+      .catch((error) => {
+        this.showNotifications("danger", `"Ошибка: "${error}`);
       })
       .finally(this.isLoaded);
     this.loadBackapsList();
-  }
-  enableEditing(d) {
+  };
+  enableEditing = (d) => {
     d.contentWindow.document.body
       .querySelectorAll("text-editor")
       .forEach((el) => {
@@ -161,8 +152,8 @@ export default class Editor extends Component {
           /* this.showNotifications("Успешно сохранено", "success", "true") */
         );
       });
-  }
-  injectStyles() {
+  };
+  injectStyles = () => {
     const style = this.iframe.contentWindow.document.createElement("style");
     style.innerHTML = `
 	  text-editor:hover{
@@ -178,14 +169,14 @@ export default class Editor extends Component {
 	  outline-offset:8px;
 	  }`;
     this.iframe.contentWindow.document.head.appendChild(style);
-  }
+  };
 
-  loadPageList() {
+  loadPageList = () => {
     axios
       .get("./api/pageList.php")
       .then((res) => this.setState({ pageList: res.data }));
-  }
-  loadBackapsList() {
+  };
+  loadBackapsList = () => {
     axios.get("./backups/backups.json").then((res) =>
       this.setState({
         backupsList: res.data.filter((backup) => {
@@ -193,14 +184,14 @@ export default class Editor extends Component {
         }),
       })
     );
-  }
-  confirmModal() {
+  };
+  confirmModal = () => {
     return confirm(
       "Вы действительно хотите восстановить страницу из этой резервной копии? Все несохраненные изменения будут утеряны!",
       { Labels: { ok: "Восстановить", cansel: "Отменить восстановление" } }
     );
-  }
-  restoreBackup(e, backup) {
+  };
+  restoreBackup = (e, backup) => {
     if (e) {
       e.preventDefault();
     }
@@ -216,45 +207,47 @@ export default class Editor extends Component {
           this.open(this.currentPage, this.isLoaded);
         });
     });
-  }
-
-  isLoading() {
+  };
+  isSHowing = (variant, text) => {
+    if (variant && text != "undefined") {
+      this.setState({
+        notification: {
+          show: true,
+          variant: variant,
+          text: text,
+        },
+      });
+    } else {
+      this.setState({
+        notification: { show: true },
+      });
+    }
+  };
+  showed = () => {
+    this.setState({
+      notification: { show: false },
+    });
+  };
+  isLoading = () => {
     this.setState({
       loading: true,
     });
-  }
-  isLoaded() {
+  };
+  isLoaded = () => {
     this.setState({
       loading: false,
     });
-  }
-  showNotifications() {}
-  /*  showNotifications(message, status) {
-    UIkit.notification({ message, status });
-  } */
-  //метод создания массива отредактированных элементов(по data -атрибуту) для отправки в бд
-  //элементы добавляются в массив по пропаже фокуса на них
-  makeBdList(attribute) {
-    this.iframe.contentWindow.document.body
-      .querySelectorAll("text-editor")
-      .forEach((item) => {
-        item.addEventListener("blur", (e) => {
-          e.preventDefault();
-          if (item.parentNode.hasAttribute(attribute))
-            this.setState((prevState) => ({
-              bdListProducts: [...prevState.bdListProducts, item.parentNode],
-            }));
-          console.log(this.state.bdListProducts);
-          console.log(item.parentNode.getAttribute(attribute));
-        });
-      });
+  };
+  showNotifications(vari, text) {
+    this.isSHowing(vari, text);
+    setTimeout(() => {
+      this.showed();
+    }, 1000);
   }
 
-  /**
-создать метод проверяющий элемент на наличие нужного дата атрибута и наличия разрешения редактирования ,если оно было то пихаем этот элемент в массив и отправляем в бд
- */
   render() {
     const {
+      notification,
       loading,
       pageList,
       backupsList,
@@ -271,6 +264,7 @@ export default class Editor extends Component {
         />
       );
     }
+
     return (
       <>
         <iframe src={null} frameBorder="0"></iframe>
@@ -281,7 +275,7 @@ export default class Editor extends Component {
           accept="image/*"
           style={{ display: "none" }}
         ></input>
-
+        <Notification prop={notification} />
         <Spiner active={loading}></Spiner>
         <Panel />
         <ConfirmModal

@@ -4,10 +4,10 @@ const ChooseModal = ({ target, data, redirect, bstoggle }) => {
   const pageList = data.map((item) => {
     if (item.time) {
       return (
-        <li key={item.file}>
+        <li key={item.file} className="list-group-item-dark">
           <a
             onClick={(e) => redirect(e, item.file)}
-            className="modal-close"
+            className="modal-close list-group-item-dark list-group-item"
             href="#"
             data-bs-dismiss="modal"
             data-bs-target={`#` + target}
@@ -18,12 +18,12 @@ const ChooseModal = ({ target, data, redirect, bstoggle }) => {
       );
     } else {
       return (
-        <li key={item}>
+        <li key={item} className="list-group-item-dark">
           <a
             onClick={(e) => redirect(e, item)}
             data-bs-dismiss="modal"
             data-bs-target={`#` + target}
-            className="modal-close"
+            className="modal-close list-group-item-dark list-group-item"
             href="#"
           >
             {item}
@@ -37,12 +37,7 @@ const ChooseModal = ({ target, data, redirect, bstoggle }) => {
     msg = "Резервных копий не найдено";
   }
   return (
-    <div
-      id={target}
-      /* uk-modal={modal.toString()} container="false" */ className={
-        `${bstoggle}` + " modal fade"
-      }
-    >
+    <div id={target} className={`${bstoggle}` + " modal fade"}>
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content">
           <div className="modal-header">
@@ -57,7 +52,7 @@ const ChooseModal = ({ target, data, redirect, bstoggle }) => {
           </div>
           <div className="modal-body">
             {msg}
-            <ul className="uk-list uk-list-divider">{pageList}</ul>
+            <ul className="list-group list-unstyled">{pageList}</ul>
           </div>
           <div className="modal-footer">
             <button

@@ -1,28 +1,17 @@
-import React from "react";
+import React, { Component } from "react";
+import Alert from "react-bootstrap/Alert";
+export default class Notification extends Component {
+  constructor(props) {
+    super(props);
+  }
 
-const Notification = ({ type, message, active }) => {
-  console.log(type, message);
+  render() {
+    const { variant, text, show } = this.props.prop;
 
-  return (
-    <div
-      className={
-        `alert alert-${type} alert-dismissible notification fade show ${active}`
-          ? "active"
-          : ""
-      }
-      role="alert"
-    >
-      <div>
-        {message}
-        {console.log(message)}
-      </div>
-      <button
-        type="button"
-        className="btn-close"
-        data-bs-dismiss="alert"
-        aria-label="Close"
-      ></button>
-    </div>
-  );
-};
-export default Notification;
+    return (
+      <Alert variant={variant} show={show}>
+        <Alert.Heading className="text-center">{text}</Alert.Heading>
+      </Alert>
+    );
+  }
+}

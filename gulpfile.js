@@ -1,9 +1,12 @@
 const gulp = require("gulp");
 const webpack = require("webpack-stream");
 const sass = require("gulp-sass")(require("sass"));
+const autoprefixer = require("autoprefixer");
+const cleanCSS = require("gulp-clean-css");
+const postCSS = require("gulp-postcss");
 
 const dist = "C:/openserver/domains/react-admin/admin";
-
+const prod = "./build/";
 gulp.task("copy-html", () => {
   return gulp.src("./app-project/src/index.html").pipe(gulp.dest(dist));
 });
@@ -81,5 +84,53 @@ gulp.task(
     "build-js"
   )
 );
+gulp.task("prod", () => {
+  gulp.src("./app-project/src/index.html").pipe(gulp.dest(prod));
+  gulp.src("./app-project/api/**/.*").pipe(gulp.dest(prod + "/api"));
+  gulp.src("./app-project/api/**/*.*").pipe(gulp.dest(prod + "/api"));
+  gulp.src("./app-project/assets/**/*.*").pipe(gulp.dest(prod + "/assets"));
+  gulp
+    .src("./app-project/src/main.js")
+    .pipe(
+      webpack({
+        mode: "production",
+        output: {
+          filename: "script.js",
+        },
+        module: {
+          rules: [
+            {
+              test: /\.(?:js|mjs|cjs)$/,
+              exclude: /node_modules/,
+              use: {
+                loader: "babel-loader",
+                options: {
+                  targets: "defaults",
+                  presets: [
+                    [
+                      "@babel/preset-env",
+                      {
+                        debug: false,
+                        corejs: 3,
+                        useBuiltIns: "usage",
+                      },
+                    ],
+                    "@babel/react",
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      })
+    )
+    .pipe(gulp.dest(prod));
+  return gulp
+    .src("./app-project/scss/style.scss")
+    .pipe(sass().on("error", sass.logError))
+    .pipe(postCSS([autoprefixer()]))
+    .pipe(cleanCSS())
+    .pipe(gulp.dest(prod));
+});
 
 gulp.task("default", gulp.parallel("watch", "build"));
